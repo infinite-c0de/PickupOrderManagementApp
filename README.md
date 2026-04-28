@@ -1,62 +1,148 @@
-![FCA](public/fca-logo.png)
+# Layver FE Monorepo (Option B)
 
-# FCA: External Help Center
+This folder implements the Option B structure with isolated portal apps:
 
-[![semantic-release: conventionalcommits](https://img.shields.io/badge/semantic--release-conventionalcommits-e10079?logo=semantic-release)](https://github.com/semantic-release/semantic-release)
+- `apps/web` -> `yoursite.com` (public + auth)
+- `apps/admin` -> `admin.yoursite.com`
+- `apps/user` -> `app.yoursite.com`
+- `apps/partner` -> `partner.yoursite.com`
 
-The External Help Center repo is a Next.js project that facilitates displaying information to non-employees for FCA.
+Shared logic lives in:
 
-## Installation
+- `packages/ui`
+- `packages/lib`
+- `packages/hooks`
 
-TODO: Add installation instruction here. e.g. `npm install`
+## Step-by-step migration status
 
-## Usage
+1. ✅ Create monorepo structure and workspaces.
+2. ✅ Create shared packages (`ui`, `lib`, `hooks`).
+3. ✅ Create independent Next.js apps (`web`, `admin`, `user`, `partner`).
+4. ✅ Completed admin migration phase: layout/auth gate + overview, buckets, goals, users, reservations, retailers, products (list/categories/create/edit), blog (list/categories/create/edit), reports, settings, timelines, and pricing moved to `apps/admin`.
+5. ✅ Move existing user routes from legacy app to `apps/user` (dashboard, goals, goal detail, buckets, contributions, reservations, retailers, transactions, profile).
+6. ✅ Move existing partner routes from legacy app to `apps/partner` (overview, products, product create/edit, partner profile).
+7. ✅ Move public + auth routes into `apps/web` (home, marketplace, blog, legal pages, auth pages).
+8. ✅ Deploy each app to its own domain/subdomain (`web` + `admin` + `user` + `partner`).
 
-TODO: Add usage instruction here. e.g `npm start`
+## Install and run
 
-## Developer Notes
-
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
-
-## Getting Started
-
-First, run the development server:
+From `layver-fe/`:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev:web
+npm run dev:admin
+npm run dev:user
+npm run dev:partner
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Default ports:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- web: `http://localhost:3000`
+- admin: `http://localhost:3001`
+- user: `http://localhost:3002`
+- partner: `http://localhost:3003`
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+## Build commands
 
-## Learn More
+```bash
+npm run build:web
+npm run build:admin
+npm run build:user
+npm run build:partner
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Production deployment (DigitalOcean)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+This repo now includes deployment templates for subdomain hosting:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+- PM2 process config: `deploy/pm2/ecosystem.config.cjs`
+- Nginx vhost config: `deploy/nginx/layver-fe-subdomains.conf`
+- One-shot bootstrap script: `deploy/scripts/bootstrap-digitalocean.sh`
+- Per-app env templates:
+  - `apps/web/.env.production.example`
+  - `apps/admin/.env.production.example`
+  - `apps/user/.env.production.example`
+  - `apps/partner/.env.production.example`
 
-## Releases
+### Quick one-command bootstrap
 
-To release a new version of the toolkit, simply open and merge a PR into `main`. This will generate a workflow that will use `semantic-release` to fully automate updating of versions in the repo, generation of Github changelog.
+From `layver-fe/` on your droplet:
 
-Also, please see [Semantic Release](https://semantic-release.gitbook.io/semantic-release/) | [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) for details about how to generate commits that will be to specification.
+```bash
+chmod +x deploy/scripts/bootstrap-digitalocean.sh
+./deploy/scripts/bootstrap-digitalocean.sh \
+  --root-domain layverhq.com \
+  --admin-domain admin.layverhq.com \
+  --user-domain app.layverhq.com \
+  --partner-domain partner.layverhq.com \
+  --public-port 3000 \
+  --certbot-email you@example.com
+```
 
-## Contributing
+If SSL is already managed separately, you can skip certbot:
 
-Create a `feature/*` branch in Github and open a pull request on `main` branch.
+```bash
+./deploy/scripts/bootstrap-digitalocean.sh --skip-certbot
+```
 
-## License
+### 1) DNS setup (Squarespace)
 
-Proprietary &copy; 2023
+Create `A` records pointing to your DigitalOcean droplet IP:
+
+- `layverhq.com`
+- `www.layverhq.com`
+- `admin.layverhq.com`
+- `app.layverhq.com`
+- `partner.layverhq.com`
+
+### 2) Build and run apps on server
+
+From `layver-fe/` on the droplet:
+
+```bash
+npm ci
+npm run build
+pm2 start deploy/pm2/ecosystem.config.cjs
+pm2 save
+pm2 startup
+```
+
+This starts:
+
+- web on port `3000`
+- admin on port `3001`
+- user on port `3002`
+- partner on port `3003`
+
+### 3) Configure Nginx
+
+```bash
+sudo cp deploy/nginx/layver-fe-subdomains.conf /etc/nginx/sites-available/layver-fe-subdomains.conf
+sudo ln -s /etc/nginx/sites-available/layver-fe-subdomains.conf /etc/nginx/sites-enabled/layver-fe-subdomains.conf
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
+### 4) SSL certificates
+
+If you have not issued certificates yet:
+
+```bash
+sudo certbot --nginx -d admin.layverhq.com -d app.layverhq.com -d partner.layverhq.com
+```
+
+### 5) App env files
+
+Create these on server (copy from `.env.production.example`):
+
+- `apps/web/.env.production`
+- `apps/admin/.env.production`
+- `apps/user/.env.production`
+- `apps/partner/.env.production`
+
+Then restart PM2 apps:
+
+```bash
+pm2 restart layver-web layver-admin layver-user layver-partner
+```

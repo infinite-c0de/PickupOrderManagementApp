@@ -1,0 +1,23 @@
+{
+  "name": "@layver/partner",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "next dev -p 3003",
+    "build": "next build",
+    "start": "next start -p 3003",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@repo/hooks": "file:../../packages/hooks",
+    "@repo/lib": "file:../../packages/lib",
+    "@repo/ui": "file:../../packages/ui",
+    "next": "^15.5.12",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "25.6.0",
+    "@types/react": "19.2.14"
+  }
+}

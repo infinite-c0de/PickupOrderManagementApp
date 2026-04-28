@@ -1,36 +1,30 @@
 {
-    "name": "@fca-org/public-help-center",
-    "version": "1.1.0",
-    "description": "External Help Center for FCA non-employees.",
-    "author": "Jacob Yi <jyi@fca.org>",
-    "license": "proprietary",
-    "private": true,
-    "scripts": {
-        "dev": "next dev",
-        "build": "next build",
-        "start": "next start",
-        "lint": "next lint"
-    },
-    "dependencies": {
-        "axios": "^1.6.2",
-        "fs": "^0.0.1-security",
-        "next": "14.0.3",
-        "react": "^18",
-        "react-dom": "^18"
-    },
-    "devDependencies": {
-        "@fca/semantic-release-preset": "github:fca-org/semantic-release-preset#v1.6.0",
-        "@semantic-release/git": "^10.0.1",
-        "@types/node": "^20",
-        "@types/react": "^18",
-        "@types/react-dom": "^18",
-        "autoprefixer": "^10.4.16",
-        "conventional-changelog-conventionalcommits": "^6.1.0",
-        "eslint": "^8",
-        "eslint-config-next": "14.0.3",
-        "postcss": "^8.4.32",
-        "semantic-release": "^21.0.5",
-        "tailwindcss": "^3.3.6",
-        "typescript": "^5"
-    }
+  "name": "layver-fe",
+  "private": true,
+  "version": "1.0.0",
+  "packageManager": "npm@10.8.2",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:web": "npm run dev --workspace=@layver/web",
+    "dev:admin": "npm run dev --workspace=@layver/admin",
+    "dev:user": "npm run dev --workspace=@layver/user",
+    "dev:partner": "npm run dev --workspace=@layver/partner",
+    "build:web": "npm run build --workspace=@layver/web",
+    "build:admin": "npm run build --workspace=@layver/admin",
+    "build:user": "npm run build --workspace=@layver/user",
+    "build:partner": "npm run build --workspace=@layver/partner",
+    "start:web": "npm run start --workspace=@layver/web",
+    "start:admin": "npm run start --workspace=@layver/admin",
+    "start:user": "npm run start --workspace=@layver/user",
+    "start:partner": "npm run start --workspace=@layver/partner",
+    "build": "npm run build:web && npm run build:admin && npm run build:user && npm run build:partner",
+    "lint": "npm run lint --workspace=@layver/web && npm run lint --workspace=@layver/admin && npm run lint --workspace=@layver/user && npm run lint --workspace=@layver/partner"
+  },
+  "devDependencies": {
+    "turbo": "^2.5.4",
+    "typescript": "^5.7.3"
+  }
 }
