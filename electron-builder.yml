@@ -1,0 +1,32 @@
+appId: com.withoutatrace.pickuporder
+productName: Pickup Order App
+copyright: Copyright © Without A Trace
+
+directories:
+  output: release
+  buildResources: assets
+
+# main process + preload are esbuild-bundled, and the renderer is fully static,
+# so no runtime node_modules need to be shipped.
+files:
+  - dist/client/**
+  - dist-electron/**
+  - package.json
+
+asar: true
+
+win:
+  target:
+    - nsis
+    - portable
+  artifactName: ${productName}-${version}-${arch}.${ext}
+
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+
+# Provide assets/icon.ico (256x256) to brand the app; electron-builder falls
+# back to the default Electron icon if it is missing.

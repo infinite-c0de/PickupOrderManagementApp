@@ -1,0 +1,2 @@
+# Timestamped SQL migration files go here (e.g. 0001_init.sql), applied in
+# order by db.ts once the SQLite backend is enabled.
