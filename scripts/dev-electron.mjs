@@ -3,7 +3,7 @@ import { spawn } from "node:child_process";
 import electronPath from "electron";
 import http from "node:http";
 
-const DEV_SERVER_URL = process.env.ELECTRON_RENDERER_URL ?? "http://localhost:8080";
+const DEV_SERVER_URL = process.env.ELECTRON_RENDERER_URL ?? "http://127.0.0.1:8080";
 
 let electronProc = null;
 let viteProc = null;

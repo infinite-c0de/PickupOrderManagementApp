@@ -8,7 +8,7 @@ import { RENDERER_DIR, SPA_SHELL, PRELOAD_PATH } from "./utils/paths";
 // static SPA bundle loaded through our custom `app://` protocol.
 // ELECTRON_FORCE_PROD lets us exercise the production path from an unpackaged run.
 export const isDev = !app.isPackaged && process.env.ELECTRON_FORCE_PROD !== "1";
-const DEV_SERVER_URL = process.env.ELECTRON_RENDERER_URL ?? "http://localhost:8080";
+const DEV_SERVER_URL = process.env.ELECTRON_RENDERER_URL ?? "http://127.0.0.1:8080";
 
 // Headless smoke test: load the renderer, report success/failure, then exit.
 const isSmokeTest = process.env.ELECTRON_SMOKE === "1";
